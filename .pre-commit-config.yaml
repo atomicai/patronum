@@ -24,19 +24,4 @@ repos:
     rev: v2.2.0
     hooks:
       - id: autoflake
-        args: ['--in-place', '--remove-all-unused-imports', '--remove-unused-variable']
-
-  # - repo: https://github.com/PyCQA/flake8
-  #   rev: 6.0.0
-  #   hooks:
-  #     - id: flake8
-  #       additional_dependencies: [
-  #           'flake8-blind-except',
-  #           'flake8-docstrings',
-  #           'flake8-bugbear',
-  #           'flake8-comprehensions',
-  #           'flake8-docstrings',
-  #           'flake8-implicit-str-concat',
-  #           'pydocstyle>=5.0.0',
-  #       ]
-  #       args: ['--remove-all-unused-imports', '--remove-unused-variable']
+        args: ['--in-place', '-cd', '--ignore-init-module-imports', '--remove-all-unused-imports', '--remove-unused-variable']

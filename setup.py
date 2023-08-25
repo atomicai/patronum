@@ -5,7 +5,7 @@ import setuptools
 from setuptools import setup
 
 extras_require = dict(
-    format=["isort==5.12.0", "black==23.7.0"],
+    format=["isort==5.11.5", "black==23.3.0", "autoflake==2.1.1", "pre-commit==2.21.0"],
     test=[
         "pytest",
         "pytest-sugar",  # For nicer look and feel
