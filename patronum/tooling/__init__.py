@@ -1,4 +1,4 @@
-from patronum.tooling.io import chunkfiy
+from patronum.tooling.io import chunkify
 from patronum.tooling.prime import create_n_threads, singleton, timer
 from patronum.tooling.stl import NIterator
 
