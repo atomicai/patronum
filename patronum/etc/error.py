@@ -43,7 +43,7 @@ class ModelingError(IError):
     def __init__(
         self,
         message: Optional[str] = None,
-        docs_link: Optional[str] = "https://haystack.deepset.ai/",
+        docs_link: Optional[str] = "https://github.com/atomicai/patronum",
     ):
         super().__init__(message=message, docs_link=docs_link)
 
@@ -54,7 +54,7 @@ class PipelineError(IError):
     def __init__(
         self,
         message: Optional[str] = None,
-        docs_link: Optional[str] = "https://haystack.deepset.ai/pipelines",
+        docs_link: Optional[str] = "https://github.com/atomicai/patronum",
     ):
         super().__init__(message=message, docs_link=docs_link)
 
@@ -94,4 +94,4 @@ class DuplicateDocumentError(DocumentStoreError, ValueError):
         super().__init__(message=message)
 
 
-__all__ = ["FilterError", "DuplicateDocumentError", "DocumentStoreError"]
+__all__ = ["FilterError", "DuplicateDocumentError", "DocumentStoreError", "ModelingError"]

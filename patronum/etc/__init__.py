@@ -1,4 +1,4 @@
-from patronum.etc.error import DocumentStoreError, DuplicateDocumentError, FilterError
+from patronum.etc.error import DocumentStoreError, DuplicateDocumentError, FilterError, ModelingError
 from patronum.etc.filter import (
     AndOperation,
     ComparisonOperation,
@@ -22,6 +22,7 @@ __all__ = [
     "FilterError",
     "DuplicateDocumentError",
     "DocumentStoreError",
+    "ModelingError",
     "Document",
     "Label",
     "MultiLabel",
