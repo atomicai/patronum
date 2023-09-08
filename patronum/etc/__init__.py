@@ -16,6 +16,16 @@ from patronum.etc.filter import (
 from patronum.etc.format import convert_date_to_rfc3339
 from patronum.etc.processor import get_batches_from_generator, grouper
 from patronum.etc.schema import Answer, Document, Label, MultiLabel, Span
+from patronum.etc.visual import (
+    FENCE,
+    FLOWERS,
+    SAMPLE,
+    TRACTOR_SMALL,
+    TRACTOR_WITH_SILO_LINE,
+    WORKER_F,
+    WORKER_M,
+    WORKER_X,
+)
 
 __all__ = [
     "FilterType",
