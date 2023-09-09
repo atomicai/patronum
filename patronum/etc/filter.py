@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from sqlalchemy import and_, or_
 from sqlalchemy.sql import select
 
-from patronum.etc import convert_date_to_rfc3339
+from patronum.etc.format import convert_date_to_rfc3339
 
 FilterType = Dict[str, Union[Dict[str, Any], List[Any], str, int, float, bool]]
 

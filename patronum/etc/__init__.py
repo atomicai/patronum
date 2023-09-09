@@ -13,7 +13,6 @@ from patronum.etc.filter import (
     NinOperation,
     NotOperation,
 )
-from patronum.etc.format import convert_date_to_rfc3339
 from patronum.etc.processor import get_batches_from_generator, grouper
 from patronum.etc.schema import Answer, Document, Label, MultiLabel, Span
 from patronum.etc.visual import (
@@ -38,7 +37,6 @@ __all__ = [
     "MultiLabel",
     "Span",
     "Answer",
-    "convert_date_to_rfc3339",
     "get_batches_from_generator",
     "grouper",
     "LogicalFilterClause",
