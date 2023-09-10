@@ -1,4 +1,7 @@
 import datetime
+from pathlib import Path
+
+import simplejson as json
 
 
 def convert_date_to_rfc3339(date: str) -> str:
@@ -21,4 +24,14 @@ def convert_date_to_rfc3339(date: str) -> str:
     return converted_date
 
 
-__all__ = ["convert_date_to_rfc3339"]
+def is_json(x):
+    if issubclass(type(x), Path):
+        return True
+    try:
+        json.dumps(x)
+        return True
+    except:
+        return False
+
+
+__all__ = ["convert_date_to_rfc3339", "is_json"]
