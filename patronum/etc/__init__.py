@@ -13,20 +13,18 @@ from patronum.etc.filter import (
     NinOperation,
     NotOperation,
 )
+from patronum.etc.prime import (
+    GracefulKiller,
+    all_gather_list,
+    flatten_list,
+    initialize_device_settings,
+    log_ascii_workers,
+)
 from patronum.etc.processor import get_batches_from_generator, grouper
 from patronum.etc.schema import Answer, Document, Label, MultiLabel, Span
-from patronum.etc.visual import (
-    FENCE,
-    FLOWERS,
-    SAMPLE,
-    TRACTOR_SMALL,
-    TRACTOR_WITH_SILO_LINE,
-    WORKER_F,
-    WORKER_M,
-    WORKER_X,
-)
 
 __all__ = [
+    "GracefulKiller",
     "FilterType",
     "FilterError",
     "DuplicateDocumentError",
@@ -39,6 +37,10 @@ __all__ = [
     "Answer",
     "get_batches_from_generator",
     "grouper",
+    "flatten_list",
+    "all_gather_list",
+    "log_ascii_workers",
+    "initialize_device_settings",
     "LogicalFilterClause",
     "ComparisonOperation",
     "EqOperation",
