@@ -1,5 +1,5 @@
 from typing import Optional
-from dotmap import Dotmap
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -9,7 +9,9 @@ from dotmap import DotMap
 class CrossEntropyLoss(nn.Module):
     def __init__(self, class_weights=None, reduction="none", ignore_index=-100):
         super(CrossEntropyLoss, self).__init__()
-        balanced_weights = nn.Parameter(torch.tensor(class_weights), requires_grad=False) if class_weights is not None else None
+        balanced_weights = (
+            nn.Parameter(torch.tensor(class_weights), requires_grad=False) if class_weights is not None else None
+        )
         self.fct = nn.CrossEntropyLoss(
             weight=balanced_weights,
             reduction=reduction,
@@ -21,7 +23,7 @@ class CrossEntropyLoss(nn.Module):
 
 
 class FocalLoss(nn.Module):
-    '''Multi-class Focal loss implementation'''
+    """Multi-class Focal loss implementation"""
 
     def __init__(self, gamma=2.0, weight=None):
         super(FocalLoss, self).__init__()
@@ -95,7 +97,9 @@ class TverskyLoss(nn.Module):
         if len(input.shape) == 2:
             if input.shape[0] != target.shape[0]:
                 raise ValueError(
-                    "number of elements in input and target shapes must be the same. Got: {}".format(input.shape, input.shape)
+                    "number of elements in input and target shapes must be the same. Got: {}".format(
+                        input.shape, input.shape
+                    )
                 )
         else:
             raise ValueError("Invalid input shape, we expect or NxC. Got: {}".format(input.shape))
@@ -137,8 +141,8 @@ class TverskyLoss(nn.Module):
 
 
 class AngularPenaltySMLoss(nn.Module):
-    def __init__(self, in_features, out_features, loss_type='arcface', eps=1e-7, s=None, m=None):
-        '''
+    def __init__(self, in_features, out_features, loss_type="arcface", eps=1e-7, s=None, m=None):
+        """
         Angular Penalty Softmax Loss
         Three 'loss_types' available: ['arcface', 'sphereface', 'cosface']
         These losses are described in the following papers:
@@ -146,17 +150,17 @@ class AngularPenaltySMLoss(nn.Module):
         ArcFace: https://arxiv.org/abs/1801.07698
         SphereFace: https://arxiv.org/abs/1704.08063
         CosFace/Ad Margin: https://arxiv.org/abs/1801.05599
-        '''
+        """
         super(AngularPenaltySMLoss, self).__init__()
         loss_type = loss_type.lower()
-        assert loss_type in ['arcface', 'sphereface', 'cosface']
-        if loss_type == 'arcface':
+        assert loss_type in ["arcface", "sphereface", "cosface"]
+        if loss_type == "arcface":
             self.s = 64.0 if not s else s
             self.m = 0.5 if not m else m
-        if loss_type == 'sphereface':
+        if loss_type == "sphereface":
             self.s = 64.0 if not s else s
             self.m = 1.35 if not m else m
-        if loss_type == 'cosface':
+        if loss_type == "cosface":
             self.s = 30.0 if not s else s
             self.m = 0.4 if not m else m
         self.loss_type = loss_type
@@ -166,9 +170,9 @@ class AngularPenaltySMLoss(nn.Module):
         self.eps = eps
 
     def forward(self, x, labels):
-        '''
+        """
         input shape (N, in_features)
-        '''
+        """
         assert len(x) == len(labels)
         assert torch.min(labels) >= 0
         assert torch.max(labels) < self.out_features
@@ -179,15 +183,17 @@ class AngularPenaltySMLoss(nn.Module):
         x = F.normalize(x, p=2, dim=1)
 
         wf = self.fc(x)
-        if self.loss_type == 'cosface':
+        if self.loss_type == "cosface":
             numerator = self.s * (torch.diagonal(wf.transpose(0, 1)[labels]) - self.m)
-        if self.loss_type == 'arcface':
+        if self.loss_type == "arcface":
             numerator = self.s * torch.cos(
-                torch.acos(torch.clamp(torch.diagonal(wf.transpose(0, 1)[labels]), -1.0 + self.eps, 1 - self.eps)) + self.m
+                torch.acos(torch.clamp(torch.diagonal(wf.transpose(0, 1)[labels]), -1.0 + self.eps, 1 - self.eps))
+                + self.m
             )
-        if self.loss_type == 'sphereface':
+        if self.loss_type == "sphereface":
             numerator = self.s * torch.cos(
-                self.m * torch.acos(torch.clamp(torch.diagonal(wf.transpose(0, 1)[labels]), -1.0 + self.eps, 1 - self.eps))
+                self.m
+                * torch.acos(torch.clamp(torch.diagonal(wf.transpose(0, 1)[labels]), -1.0 + self.eps, 1 - self.eps))
             )
 
         excl = torch.cat([torch.cat((wf[i, :y], wf[i, y + 1 :])).unsqueeze(0) for i, y in enumerate(labels)], dim=0)
