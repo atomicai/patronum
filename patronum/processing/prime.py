@@ -1,7 +1,10 @@
 import logging
 from typing import Dict, Iterable, List, Optional
 
-from patronum.processing import IProcessor, Sample, SampleBasket, convert_features_to_dataset
+from patronum.processing import IProcessor
+from patronum.processing.tool import convert_features_to_dataset
+from patronum.processing.sample import Sample, SampleBasket
+
 
 logger = logging.getLogger(__name__)
 

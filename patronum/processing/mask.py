@@ -11,7 +11,7 @@ import simplejson as json
 from transformers import AutoTokenizer
 
 from patronum.etc.format import is_json
-from patronum.processing import SampleBasket
+from patronum.processing.sample import SampleBasket
 
 logger = logging.getLogger(__name__)
 

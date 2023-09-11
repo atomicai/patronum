@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 
-from patronum.etc import SAMPLE
+from patronum.etc.visual import SAMPLE
 
 logger = logging.getLogger(__name__)
 
