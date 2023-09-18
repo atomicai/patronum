@@ -8,6 +8,9 @@ logger = logging.getLogger(__name__)
 
 
 class IDocStore(abc.ABC):
+    duplicate_documents_options: tuple = ("skip", "overwrite", "fail")
+    ids_iterator = None
+
     @abc.abstractclassmethod
     def write(self, docs, index: str = None):
         pass
@@ -28,9 +31,9 @@ class IDocStore(abc.ABC):
     def _drop_duplicate_documents(self, documents: List[Document], index: Optional[str] = None) -> List[Document]:
         """
         Drop duplicates documents based on same hash ID
-        :param documents: A list of Haystack Document objects.
+        :param documents: A list of Document objects.
         :param index: name of the index
-        :return: A list of Haystack Document objects.
+        :return: A list of Document objects.
         """
         _hash_ids = set([])
         _documents: List[Document] = []
@@ -58,7 +61,7 @@ class IDocStore(abc.ABC):
         """
         Checks whether any of the passed documents is already existing in the chosen index and returns a list of
         documents that are not in the index yet.
-        :param documents: A list of Haystack Document objects.
+        :param documents: A list of Document objects.
         :param index: name of the index
         :param duplicate_documents: Handle duplicates document based on parameter options.
                                     Parameter options : ( 'skip','overwrite','fail')
@@ -67,7 +70,7 @@ class IDocStore(abc.ABC):
                                     fail: an error is raised if the document ID of the document being added already
                                     exists.
         :param headers: Custom HTTP headers to pass to document store client if supported (e.g. {'Authorization': 'Basic YWRtaW46cm9vdA=='} for basic authentication)
-        :return: A list of Haystack Document objects.
+        :return: A list of Document objects.
         """
 
         index = index or self.index
