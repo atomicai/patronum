@@ -1,3 +1,23 @@
+BAT = """
+_____________________                              _____________________
+`-._:  .:'   `:::  .:\           |\__/|           /::  .:'   `:::  .:.-'
+    \      :          \          |:   |          /         :       /
+     \     ::    .     `-_______/ ::   \_______-'   .      ::   . /
+      |  :   :: ::'  :   :: ::'  :   :: ::'      :: ::'  :   :: :|
+      |     ;::         ;::         ;::         ;::         ;::  |
+      |  .:'   `:::  .:'   `:::  .:'   `:::  .:'   `:::  .:'   `:|
+      /     :           :           :           :           :    \
+     /______::_____     ::    .     ::    .     ::   _____._::____\
+                   `----._:: ::'  :   :: ::'  _.----'
+                          `--.       ;::  .--'
+                              `-. .:'  .-'
+                                 \    /
+                                  \  /
+                                   \/
+
+ """
+
+
 FLOWERS = r"""
 
    vVVVv                  vVVVv
@@ -103,4 +123,14 @@ WORKER_X = r""" 0  # pylint: disable=trailing-whitespace
 /'\ """
 
 
-__all__ = ["FLOWERS", "SAMPLE", "FENCE", "TRACTOR_SMALL", "TRACTOR_WITH_SILO_LINE", "WORKER_M", "WORKER_F", "WORKER_X"]
+__all__ = [
+    "FLOWERS",
+    "SAMPLE",
+    "FENCE",
+    "TRACTOR_SMALL",
+    "TRACTOR_WITH_SILO_LINE",
+    "WORKER_M",
+    "WORKER_F",
+    "WORKER_X",
+    "BAT",
+]

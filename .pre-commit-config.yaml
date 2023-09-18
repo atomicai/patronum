@@ -24,4 +24,4 @@ repos:
     rev: v2.2.0
     hooks:
       - id: autoflake
-        args: ['--in-place', '-cd', '--ignore-init-module-imports', '--remove-all-unused-imports', '--remove-unused-variable']
+        args: ['--in-place', '-cd', '--ignore-init-module-imports', '--remove-all-unused-imports']

@@ -212,4 +212,4 @@ Losses = DotMap(
 )
 
 
-__all__ = ["CrossEntropyLoss", "FocalLoss", "TverskyLoss", "AngularPenaltySMLoss", "Losses"]
+__all__ = ["Losses"]
