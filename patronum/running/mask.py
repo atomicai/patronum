@@ -13,7 +13,7 @@ class IFormatter(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def save(self, filename_or_path=None) -> bool:
+    def save(self, filename_or_path=None) -> str:
         pass
 
 
