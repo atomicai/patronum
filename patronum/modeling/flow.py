@@ -10,7 +10,8 @@ from transformers import AutoModelForSequenceClassification, AutoModelForTokenCl
 from transformers.models.bert.modeling_bert import ACT2FN, BertForPreTraining
 
 from patronum.etc.format import convert_iob_to_simple_tags
-from patronum.modeling import Losses, div
+from patronum.modeling import div
+from patronum.modeling.loss import Losses
 from patronum.modeling.mask import IFlow
 
 logger = logging.getLogger(__name__)

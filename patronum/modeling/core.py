@@ -16,12 +16,11 @@ tracker = None
 logger = logging.getLogger(__name__)
 
 
-class ICoreModel:
+class IRunner:
     """
     Base Class for implementing M1/M2/M3 etc... models with frameworks like PyTorch and co.
     """
 
-    language_model: ILanguageModel
     subclasses = {}  # type: Dict
 
     def __init_subclass__(cls, **kwargs):
@@ -151,7 +150,7 @@ def loss_per_head_sum(loss_per_head: Iterable, global_step: Optional[int] = None
     return sum(loss_per_head)
 
 
-class M1Model(nn.Module, ICoreModel):
+class M1Runner(nn.Module, IRunner):
     """
     PyTorch implementation containing all the modelling needed for your NLP task. Combines a language
     model and a prediction head. Allows for gradient flow back to the language model component.
@@ -188,7 +187,7 @@ class M1Model(nn.Module, ICoreModel):
                                     Note: The loss at this stage is per sample, i.e one tensor of
                                     shape (batchsize) per prediction head.
         """
-        super(M1Model, self).__init__()  # type: ignore
+        super(M1Runner, self).__init__()  # type: ignore
         self.device = device
         self.language_model = language_model.to(device)
         self.lm_output_dims = language_model.output_dims
@@ -477,4 +476,4 @@ class M1Model(nn.Module, ICoreModel):
         return self.language_model.language
 
 
-__all__ = ["M1Model"]
+__all__ = ["M1Runner"]

@@ -1,4 +1,4 @@
-from patronum.modeling.core import M1Model
+from patronum.modeling.core import IRunner, M1Runner
 from patronum.modeling.flow import ICLSHead, IMLCLSHead, IRegressionHead
 from patronum.modeling.loss import Losses
 from patronum.modeling.mask import IFlow, ILanguageModel
@@ -8,7 +8,8 @@ __all__ = [
     "ILanguageModel",
     "Losses",
     "IFlow",
-    "M1Model",
+    "IRunner",
+    "M1Runner",
     "IDIBERT",
     "IE5Model",
     "ICLSHead",
