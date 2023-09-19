@@ -20,8 +20,8 @@ repos:
     rev: 5.12.0
     hooks:
       - id: isort
-  - repo: https://github.com/PyCQA/autoflake
-    rev: v2.2.0
-    hooks:
-      - id: autoflake
-        args: ['--in-place', '-cd', '--ignore-init-module-imports', '--remove-all-unused-imports']
+  # - repo: https://github.com/PyCQA/autoflake
+  #   rev: v2.2.0
+  #   hooks:
+  #     - id: autoflake
+  #       args: ['--in-place', '-cd', '--ignore-init-module-imports', '--remove-all-unused-imports']

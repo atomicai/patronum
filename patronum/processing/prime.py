@@ -1,10 +1,15 @@
 import logging
+from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
-from patronum.processing import IProcessor
-from patronum.processing.tool import convert_features_to_dataset
-from patronum.processing.sample import Sample, SampleBasket
+import polars as pl
+import simplejson as json
+from transformers import AutoTokenizer
 
+from patronum.processing import IProcessor
+from patronum.processing.feature import tokenize_with_metadata, truncate_sequences
+from patronum.processing.sample import Sample, SampleBasket
+from patronum.processing.tool import convert_features_to_dataset, sample_to_features_text
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +36,7 @@ class ICLSProcessor(IProcessor):
         proxies=None,
         max_samples=None,
         text_column_name="text",
+        process_fn=None,
         **kwargs,
     ):
         # Custom processor attributes
@@ -40,6 +46,7 @@ class ICLSProcessor(IProcessor):
         self.header = header
         self.max_samples = max_samples
         self.dev_stratification = dev_stratification
+        self.process_fn = process_fn
 
         logger.debug("Currently no support in Processor for returning problematic ids")
 
@@ -75,7 +82,23 @@ class ICLSProcessor(IProcessor):
             )
 
     def file_to_dicts(self, file: str) -> List[Dict]:
-        raise NotImplementedError
+        # arr = pl.read_csv(file).to_arrow()
+        arr = pl.read_csv(file)
+        response = []
+        for task in self.tasks.values():
+            x_col = task["text_column_name"]
+            x_hat = "text"
+            y_col = task["label_column_name"]
+            y_hat = task["label_name"]  # How we want the label column to be named in out own flow.
+            xs, ys = arr.select(x_col).to_series().to_list(), arr.select(y_col).to_series().to_list()
+            xys = [{x_hat: x, y_hat: y} for x, y in zip(xs, ys)]
+            response.extend(xys)
+            # for xs, ys in zip(chunked(arr[x_col], n=10_000), chunked(arr[y_col], n=10_000)):
+            #     xs = [str(x) for x in xs]
+            #     ys = [str(y) for y in ys]
+            #     batch = [{x_hat: x, y_hat: y} for x, y in zip(xs, ys)]
+            #     response.extend(batch)
+        return response
 
     def dataset_from_dicts(
         self, dicts: List[Dict], indices: Optional[List[int]] = None, return_baskets: bool = False, debug: bool = False
@@ -84,7 +107,7 @@ class ICLSProcessor(IProcessor):
             indices = []
         baskets = []
         # Tokenize in batches
-        texts = [x["text"] for x in dicts]
+        texts = [self.process_fn(x["text"]) for x in dicts]
         tokenized_batch = self.tokenizer(
             texts,
             return_offsets_mapping=True,
@@ -134,6 +157,25 @@ class ICLSProcessor(IProcessor):
         else:
             return dataset, tensornames, problematic_ids
 
+    def convert_labels(self, dictionary: Dict):
+        response: Dict = {}
+        # Add labels for different tasks
+        for task in self.tasks.values():
+            label_name = task["label_name"]
+            label_raw = dictionary[label_name]
+            label_list = task["label_list"]
+            if task["task_type"] == "classification":
+                # id of label
+                label_ids = [label_list.index(label_raw)]
+            elif task["task_type"] == "multilabel_classification":
+                # multi-hot-format
+                label_ids = [0] * len(label_list)
+                for l in label_raw.split(","):
+                    if l != "":
+                        label_ids[label_list.index(l)] = 1
+            response[task["label_tensor_name"]] = label_ids
+        return response
+
     def _create_dataset(self, baskets: List[SampleBasket]):
         features_flat: List = []
         basket_to_remove = []
@@ -152,4 +194,87 @@ class ICLSProcessor(IProcessor):
         return dataset, tensor_names
 
 
-__all__ = ["ICLSProcessor"]
+class ICLSFastProcessor(ICLSProcessor):
+    """
+    Generic processor used at inference time:
+    - fast
+    - no labels
+    - pure encoding of text into pytorch dataset
+    - Doesn't read from file, but only consumes dictionaries (e.g. coming from API requests)
+    """
+
+    def __init__(self, tokenizer, max_seq_len, **kwargs):
+        super(ICLSFastProcessor, self).__init__(
+            tokenizer=tokenizer,
+            max_seq_len=max_seq_len,
+            train_filename=None,
+            dev_filename=None,
+            test_filename=None,
+            dev_split=None,
+            data_dir=None,
+            tasks={},
+        )
+
+    @classmethod
+    def load_from_dir(cls, load_dir: str):
+        """
+         Overwriting method from parent class to **always** load the InferenceProcessor instead of the specific class stored in the config.
+
+        :param load_dir: str, directory that contains a 'processor_config.json'
+        :return: An instance of an InferenceProcessor
+        """
+        # read config
+        processor_config_file = Path(load_dir) / "processor_config.json"
+        with open(processor_config_file) as f:
+            config = json.load(f)
+        # init tokenizer
+        tokenizer = AutoTokenizer.from_pretrained(load_dir, tokenizer_class=config["tokenizer"])
+        # we have to delete the tokenizer string from config, because we pass it as Object
+        del config["tokenizer"]
+
+        processor = cls.load(tokenizer=tokenizer, processor_name="InferenceProcessor", **config)
+        for task_name, task in config["tasks"].items():
+            processor.add_task(name=task_name, metric=task["metric"], label_list=task["label_list"])
+
+        if processor is None:
+            raise Exception
+
+        return processor
+
+    def file_to_dicts(self, file: str) -> List[Dict]:
+        raise NotImplementedError
+
+    def convert_labels(self, dictionary: Dict):
+        # For inference we do not need labels
+        ret: Dict = {}
+        return ret
+
+    # Private method to keep s3e pooling and embedding extraction working
+    def _dict_to_samples(self, dictionary: Dict, **kwargs) -> Sample:
+        # this tokenization also stores offsets
+        tokenized = tokenize_with_metadata(self.process_fn(dictionary["text"]), self.tokenizer)
+        # truncate tokens, offsets and start_of_word to max_seq_len that can be handled by the model
+        truncated_tokens = {}
+        for seq_name, tokens in tokenized.items():
+            truncated_tokens[seq_name], _, _ = truncate_sequences(
+                seq_a=tokens, seq_b=None, tokenizer=self.tokenizer, max_seq_len=self.max_seq_len
+            )
+        return Sample(id="", clear_text=dictionary, tokenized=truncated_tokens)
+
+    # Private method to keep s3e pooling and embedding extraction working
+    def _sample_to_features(self, sample: Sample) -> Dict:
+        features = sample_to_features_text(
+            sample=sample,
+            tasks=self.tasks,
+            max_seq_len=self.max_seq_len,
+            tokenizer=self.tokenizer,
+            process_fn=self.process_fn,
+        )
+        return features
+
+
+class IANNProcessor(IProcessor):
+    pass
+
+
+__all__ = ["ICLSProcessor", "ICLSFastProcessor", "IANNProcessor"]

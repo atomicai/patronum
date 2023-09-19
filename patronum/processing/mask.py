@@ -206,17 +206,7 @@ class IProcessor(abc.ABC):
         )
 
         # TODO infer task_type automatically from config (if possible)
-        if task_type == "question_answering":
-            processor = SquadProcessor(
-                tokenizer=tokenizer,
-                max_seq_len=max_seq_len,
-                label_list=["start_token", "end_token"],
-                metric="squad",
-                data_dir="data",
-                doc_stride=doc_stride,
-                max_query_length=max_query_length,
-            )
-        elif task_type == "embeddings":
+        if task_type == "embeddings":
             processor = InferenceProcessor(tokenizer=tokenizer, max_seq_len=max_seq_len)
 
         else:
